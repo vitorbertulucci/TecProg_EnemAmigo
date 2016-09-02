@@ -1,0 +1,40 @@
+<h1 class="content-title">Enem Amigo</h1>
+
+<% if @new_medals.count > 0 %>
+  <%= render partial: '/medals/new_medal' %>
+<% end %>
+<% if @user_level != current_user.level %>
+    <%= render partial: 'users/new_level.html.erb' %>
+    <% update_user_level %>
+<% end %>
+
+<div id="user-progress"><h4>Meu Progresso</h4></div>
+<div class="progress">
+  <div class="progress-bar progress-bar-danger progress-bar" role="progressbar"
+  aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:<%= current_user.progress %>%" style="height:20%">
+    <strong><%= current_user.progress %>% completo</strong>
+  </div>
+</div>
+
+<div class="options-container" id="home-table">
+  <div class="user-options">
+    <table class='table'>
+      <tr>
+          <td class="align-center" id="image-table"><%= link_to image_tag("questoes.png", class: 'img-responsive custom-img'), questions_path %></td>
+          <td class="align-center" id="desc-table">Treine para o ENEM respondendo questões de provas anteriores!</td>
+      </tr>
+      <tr>
+        <td class="align-center" id="image-table"><%= link_to image_tag("batalha.png", class: 'img-responsive custom-img'), battles_path %></td>
+        <td class="align-center" id="desc-table">Convide usuários ou seus amigos para uma disputa intelectual frenética com questões do ENEM!</td>
+      </tr>
+      <tr>
+        <td class="align-center" id="image-table"><%= link_to image_tag("prova.png", class: 'img-responsive custom-img'), select_exam_path %></td>
+        <td class="align-center" id="desc-table">Simule as condições de uma prova real do ENEM para melhorar seu desempenho!</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td></td>
+      </tr>
+    </table>
+  </div>
+</div>

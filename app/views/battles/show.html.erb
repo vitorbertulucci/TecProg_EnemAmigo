@@ -1,0 +1,33 @@
+<p class='battle-title'>
+  MODO BATALHA
+</p>
+
+<table id="vs-image" class="label label-default">
+    <tr>
+        <td><p id="vs-title">vs.</p></td>
+        <td><div class="profile-image"><%= image_tag(@adversary.profile_image_file_name.blank? ? "profiles_images/default" : @adversary.profile_image.url, alt: "Profile image") %></div></td>
+    </tr>
+</table>
+
+
+<div class="glyphicon glyphicon-time label label-default" id="counter"></div>
+
+<script>
+    function countdown() {
+        var seconds = 601;
+        function tick() {
+            var counter = document.getElementById("counter");
+            seconds--;
+            counter.innerHTML = " " + String((seconds-seconds%60)/60) + ":" + (seconds%60 < 10 ? "0" : "") + String(seconds%60);
+            if( seconds > 0 ) {
+                setTimeout(tick, 1000);
+            } else {
+                window.location.href += '/finish';
+            }
+        }
+        tick();
+    }
+    countdown();
+</script>
+
+<%= render 'question' %>

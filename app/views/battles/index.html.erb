@@ -1,0 +1,81 @@
+<h1> Batalhas </h1>
+
+<table id="battle-options-table">
+  <tr>
+  <td>
+  <div>
+    <%= link_to ' Nova Batalha', "/battles/new", class: "btn btn-success glyphicon glyphicon-plus" %>
+  </div>
+  </td>
+  <td id="battle-ranking">
+  <div>
+    <%= link_to ' Ranking de Batalha', "/battles/ranking", class: "btn btn-danger glyphicon glyphicon-signal align-center" %>
+  </div>
+  </td>
+  </tr>
+</table>
+
+<% unless @pending_battles.blank? %>
+  <br><br>
+  <h2><b>Batalhas Pendentes</b></h2>
+  <table class='table'>
+    <thead>
+      <th class="align-center">Adversário</th>
+      <th class="align-center">Jogar / Recusar</th>
+    </thead>
+
+    <% @pending_battles.each do |t| %>
+      <tr>
+        <td class="align-center"><%= is_player_1?(t) ? t.player_2.name : t.player_1.name %></td>
+        <td class="align-center">
+          <%= link_to '', "/battles/#{t.id}", class: "btn btn-success glyphicon glyphicon-ok" %>
+          <%= link_to '', battle_path(t), :method => :delete, class: "btn btn-danger glyphicon glyphicon-remove", id: "btn-delete", data: { confirm: "Você tem certeza que deseja excluir a batalha?" } %>
+        </td>
+      </tr>
+    <% end %>
+  </table>
+<% end %>
+
+<% unless @waiting_battles.blank? %>
+  <br><br>
+  <h2><b>Batalhas Abertas</b></h2>
+  <table class='table'>
+    <thead>
+      <th class="align-center">Adversário</th>
+      <th class="align-center">Gabarito</th>
+    </thead>
+
+    <% @waiting_battles.each do |t| %>
+      <tr>
+        <td class="align-center"><%= is_player_1?(t) ? t.player_2.name : t.player_1.name %></td>
+        <td class="align-center">
+          <%= link_to ' Gabarito', "/battles/#{t.id}/finish", class: "btn btn-default glyphicon glyphicon-stats" %>
+        </td>
+      </tr>
+    <% end %>
+  </table>
+<% end %>
+
+
+<% unless @finished_battles.blank? %>
+  <br><br>
+  <h2><b>Batalhas Finalizadas</b></h2>
+  <table class='table'>
+    <thead>
+      <th class="align-center">Adversário</th>
+      <th class="align-center">Resultado</th>
+    </thead>
+
+    <% @finished_battles.each do |t| %>
+      <tr>
+        <td class="align-center"><%= is_player_1?(t) ? t.player_2.name : t.player_1.name %></td>
+        <td class="align-center"><%= link_to 'Ver Resultado', "/battles/#{t.id}/result" , class: "btn btn-info" %></td>
+      </tr>
+    <% end %>
+  </table>
+<% end %>
+
+
+<% if @battles.blank? %>
+  <h3> Você não participou de nenhuma batalha </h3>
+<% end %>

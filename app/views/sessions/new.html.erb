@@ -1,0 +1,15 @@
+<% provide(:title, "Entrar") %>
+
+<h1 class="login-title">Login</h1>
+
+<% if logged_in? %>
+  <h1> Bem vindo, <%= current_user.name %></h1>
+  <%= link_to 'Sair', logout_path, method: :delete %>
+<% else %>
+  <%= form_for(:session, url: login_path, html: { class: 'login' }) do |f| %>
+    <%= f.email_field :email, class: 'form-control', placeholder: 'Email' %>
+    <%= f.password_field :password, class: 'form-control', placeholder: 'Senha' %>
+    <%= f.submit "Entrar", class: "btn btn-primary" %>
+  <% end %>
+  <p id="new-user">Primeiro acesso? <%= link_to "Cadastre-se", signup_path %></p>
+<% end %>

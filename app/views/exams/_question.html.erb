@@ -1,0 +1,30 @@
+<div class="question">
+  <h1>Questão <%= @question.number%></h1>
+  <h2>Ano: <%= @question.year %></h2>
+
+  <div class='question-index'>
+    <p><%= @question.area %></p>
+  </div>
+
+  <% @question.texts.each do |t| %>
+    <h4 class="question-title"><%= t.title %></h4>
+    <% t.paragraphs.each do |p| %>
+      <p class="question-text"><%= p %></p>
+    <% end %>
+    <p class="question-text-reference"><%= t.reference %></p>
+  <% end %>
+
+  <% unless @question.image.empty? %>
+    <%= image_tag(@question.image , class: 'img-responsive question-img') %>
+  <% end %>
+
+  <p class="question"><%= @question.enunciation %></p>
+
+  <% @question.alternatives.each do |f| %>
+    <div class="alternative">
+      <%= radio_button_tag(:"alternative_#{@question.id}", f.letter) %>
+      <%= label_tag(f.letter.to_s, f.letter.to_s + ")") %>
+      <%= f.description %>
+    </div>
+  <% end %>
+</div>

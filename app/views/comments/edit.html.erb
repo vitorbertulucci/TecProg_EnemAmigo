@@ -1,0 +1,6 @@
+<%= form_for @comment do |f| %>
+  <%= f.label :content, "Edite aqui seu comentário" %>
+  <%= f.text_area :content, class: 'form-control' %>
+  <%= hidden_field_tag(:comment_id, @comment.id) %>
+  <%= f.submit "Atualizar", class: 'btn btn-success active col-md-2' %>
+<% end %>
