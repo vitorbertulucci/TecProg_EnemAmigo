@@ -17,7 +17,11 @@ class QuestionsController < ApplicationController
 	# Return: questions.
 
   def index
+
     @questions = Question.all.order(:year, :number)
+
+    return @questions
+
   end
 
   # Name: edit.
@@ -27,6 +31,8 @@ class QuestionsController < ApplicationController
 
   def edit
     @question = Question.find(params[:id])
+
+    return @question
   end
 
   # Name: update.
@@ -36,21 +42,26 @@ class QuestionsController < ApplicationController
 
   def update
     @question = Question.find(params[:id])
+
     if (@question.update_attributes(question_params))
       flash[:success] = "Questão atualizada com sucesso!"
-       return redirect_to question_path
+      return redirect_to question_path
     else
       return render 'edit'
     end
   end
 
   # Name: show.
-	# Objective:
-	# Parameters: don't have parameters.
-	# Return: nothing.
+	# Objective: this method find a question by identifier to show.
+	# Parameters: question identifier.
+	# Return: question.
 
   def show
+
     @question = Question.find(params[:id])
+
+    return @question
+
   end
 
   # Name: destroy.
@@ -66,7 +77,7 @@ class QuestionsController < ApplicationController
   end
 
   # Name: answer.
-	# Objective:
+	# Objective: this method verify if the question is right or wrong.
 	# Parameters: question identifier, alternative answer.
 	# Return: nothing.
 
@@ -85,6 +96,7 @@ class QuestionsController < ApplicationController
       respond_to do |format|
         format.html { redirect_to questions_path }
         format.js { @correct_answer }
+
       end
 
       if (@correct_answer)
@@ -92,9 +104,13 @@ class QuestionsController < ApplicationController
         unless current_user.accepted_questions.include? question.id
           current_user.accepted_questions.push(question.id)
           current_user.update_attribute(:points, current_user.points + 4)
+
         end
+
       end
+
     end
+
   end
 
   # Name: category.
@@ -103,48 +119,62 @@ class QuestionsController < ApplicationController
 	# Return: nothing.
 
   def category
+
   end
 
   # Name: nature.
-	# Objective:
+	# Objective: this method allocates the question in "natural sciences".
 	# Parameters: don't have parameters.
-	# Return: nothing.
+	# Return: questions.
 
   def nature
     @questions = Question.where(area: "ciências da natureza e suas tecnologias").order(:year, :number)
+
+    return @questions
+
   end
 
   # Name: humans.
-	# Objective:
+	# Objective: this method allocates the question in "humans sciences".
 	# Parameters: don't have parameters.
-	# Return: nothing.
+	# Return: questions.
 
   def humans
+
     @questions = Question.where(area: "ciências humanas e suas tecnologias").order(:year, :number)
+
+    return @questions
   end
 
   # Name:languages.
-	# Objective:
+	# Objective: this method allocates the question in "languages".
 	# Parameters: don't have parameters.
-	# Return: nothing.
+	# Return: questions.
 
   def languages
+
     @questions = Question.where(area: "linguagens, códigos e suas tecnologias").order(:year, :number)
+
+    return @questions
   end
 
   # Name: math.
-	# Objective:
+	# Objective: this method allocates the question in "math".
 	# Parameters: don't have parameters.
-	# Return: nothing.
+	# Return: questions.
 
   def math
+
     @questions = Question.where(area: "matemática e suas tecnologias").order(:year, :number)
+
+    return @questions
+
   end
 
   # Name: recommended.
-	# Objective:
+	# Objective: this method instantiates allocates the questions by classification in area.
 	# Parameters: don't have parameters.
-	# Return: nothing.
+	# Return: questions.
 
   def recommended
     areas = ["ciências da natureza e suas tecnologias",
@@ -157,12 +187,15 @@ class QuestionsController < ApplicationController
       @questions = @questions | instance_eval("Question.#{classification}_questions('#{area}')")
     end
     @questions = @questions.select { |q| !current_user.accepted_questions.include? q.id }
+
+    return @questions
+
   end
 
   # Name: upload_questions.
-	# Objective:
+	# Objective: this method updates the questions.
 	# Parameters: don't have parameters.
-	# Return: nothing.
+	# Return: redirects to the questions page.
 
   def upload_questions
     uploaded_file = params[:questions_file]
@@ -174,13 +207,15 @@ class QuestionsController < ApplicationController
     Parser.read_questions(file_content)
 
     flash[:success] = "Questões armazenadas com sucesso."
+
     return redirect_to questions_path
+
   end
 
   # Name: upload_candidates_data.
-	# Objective:
+	# Objective: this method updates the candidates.
 	# Parameters: don't have parameters.
-	# Return: nothing.
+	# Return: redirects to the previous page.
 
   def upload_candidates_data
     uploaded_file = params[:candidates_data_file]
@@ -192,27 +227,34 @@ class QuestionsController < ApplicationController
     Parser.read_candidates_data(file_content, params[:test_year])
 
     flash[:success] = "Dados armazenados com sucesso."
+
     return redirect_to questions_path
+
   end
 
   # Name: next_question.
-	# Objective:
-	# Parameters: don't have parameters.
-	# Return: nothing.
+	# Objective: this method
+	# Parameters: question identifier.
+	# Return: next question.
 
   def next_question
+
     return redirect_to Question.find(params[:id]).next_question
+
   end
 
   private
 
   # Name: question_params.
 	# Objective:
-	# Parameters: don't have parameters.
+	# Parameters: year, are, number, enunciation, reference, iamge, right_answer,
+  #             alternatives attributes identifier, alternatives attributes letter,
+  #             alternatives attributes description.
 	# Return: nothing.
 
   def question_params
-    params.require(:question).permit(:year,:area,:number,:enunciation,:reference,:image,:right_answer,:alternatives_attributes => [:id, :letter, :description])
+    params.require(:question).permit(:year,:area,:number,:enunciation,:reference,:image,:right_answer,
+    :alternatives_attributes => [:id, :letter, :description])
   end
 
 end

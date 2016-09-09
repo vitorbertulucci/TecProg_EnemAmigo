@@ -101,6 +101,7 @@ class CommentsController < ApplicationController
     @comment = Comment.find(params[:comment_id])
     @comment.destroy
     flash[:success] = "Comentário deletado com sucesso"
+
     return redirect_to Topic.find(session[:topic_id])
 
   end
@@ -113,9 +114,10 @@ class CommentsController < ApplicationController
   def show
 
     @comment = Comment.find(params[:id])
-    return @comment
-  end
 
+    return @comment
+
+  end
 
   private
 
