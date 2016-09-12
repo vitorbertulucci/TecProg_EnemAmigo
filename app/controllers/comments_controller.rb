@@ -36,9 +36,9 @@ class CommentsController < ApplicationController
 
     if (@comment.save)
       flash[:success] = "Seu comentário foi criado com sucesso"
-      return redirect_to Topic.find(session[:topic_id])
+      return redirect_to(Topic.find(session[:topic_id]))
     else
-      return redirect_to new_post_comment_path(params[:post_id])
+      return redirect_to(new_post_comment_path(params[:post_id]))
     end
 
   end
@@ -57,7 +57,7 @@ class CommentsController < ApplicationController
   end
 
   # Name: update.
-  # Objective: this class edit an comment in the database.
+  # Objective: this method edit an comment in the database.
 	# Parameters: comment identifier and topic identifier.
 	# Return: redirect to topic page or edited post.
 
@@ -66,9 +66,9 @@ class CommentsController < ApplicationController
 
     if (@comment.update_attributes(comment_params))
       flash[:success] = "Seu comentário foi atualizado com sucesso"
-      return redirect_to Topic.find(session[:topic_id])
+      return redirect_to(Topic.find(session[:topic_id]))
     else
-      return redirect_to edit_post_comment_path(session[:topic_id])
+      return redirect_to(edit_post_comment_path(session[:topic_id]))
     end
 
   end
@@ -92,7 +92,7 @@ class CommentsController < ApplicationController
   end
 
   # Name: destroy
-	# Objective: this method delet an commment on database .
+	# Objective: this method delete an commment on database .
 	# Parameters: comment identifier.
 	# Return: redirect the user to topic page.
 
@@ -102,7 +102,7 @@ class CommentsController < ApplicationController
     @comment.destroy
     flash[:success] = "Comentário deletado com sucesso"
 
-    return redirect_to Topic.find(session[:topic_id])
+    return redirect_to(Topic.find(session[:topic_id]))
 
   end
 
@@ -127,7 +127,9 @@ class CommentsController < ApplicationController
 	# Return: don't have return.
 
   def set_comment_params
+
     params.require(:comment).permit(:content)
+
   end
 
 end

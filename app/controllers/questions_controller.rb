@@ -1,53 +1,58 @@
 # Class: questions_controller.rb.
-# Purpose:
+# Purpose: this class control the actions of questions, like add or delete questions.
 # Enem Amigo.
 # FGA - Universidade de Brasíilia UnB.
 
 class QuestionsController < ApplicationController
 
   # Checks for user logged in.
-  before_action :authenticate_user
+  before_action :authenticate_use
   before_action :authenticate_admin, only: [ :new, :create, :edit, :destroy, :update ]
 
   include QuestionsHelper
 
   # Name: index.
 	# Objective: this method organizes issues per year and number.
-	# Parameters: don't have parameters.
+	# Parameters: year and number.
 	# Return: questions.
 
   def index
 
     @questions = Question.all.order(:year, :number)
-
     return @questions
 
   end
 
   # Name: edit.
 	# Objective: this method find the question.
-	# Parameters: don't have parameters.
+	# Parameters: question identifier.
 	# Return: question.
 
   def edit
-    @question = Question.find(params[:id])
 
+    @question = Question.find(params[:id])
     return @question
+
   end
 
   # Name: update.
   # Objective: this method allows editing questions.
   # Parameters: question identifier.
-  # Return: redirect the user to page question.
+  # Return: redirect to the question.
 
   def update
+
     @question = Question.find(params[:id])
 
     if (@question.update_attributes(question_params))
       flash[:success] = "Questão atualizada com sucesso!"
+
       return redirect_to question_path
+
     else
+
       return render 'edit'
+
     end
   end
 
@@ -59,7 +64,6 @@ class QuestionsController < ApplicationController
   def show
 
     @question = Question.find(params[:id])
-
     return @question
 
   end
@@ -67,13 +71,16 @@ class QuestionsController < ApplicationController
   # Name: destroy.
 	# Objective: this method deletes the selected question.
 	# Parameters: question identifier.
-	# Return: redirect the user to the questions page.
+	# Return: redirect to the questions page.
 
   def destroy
+
     @question = Question.find(params[:id])
     @question.destroy
     flash[:success] = "Questão deletada com sucesso!"
+
     return redirect_to questions_path
+
   end
 
   # Name: answer.
@@ -86,7 +93,9 @@ class QuestionsController < ApplicationController
     @answer_letter = params[:alternative]
 
     if (params[:alternative].blank?)
+
       return redirect_to_back(root_path)
+
     else
       current_user.update_attribute(:tried_questions, current_user.tried_questions << question.id)
       question.update_attribute(:users_tries, question.users_tries + 1)
@@ -106,9 +115,7 @@ class QuestionsController < ApplicationController
           current_user.update_attribute(:points, current_user.points + 4)
 
         end
-
       end
-
     end
 
   end
@@ -128,8 +135,8 @@ class QuestionsController < ApplicationController
 	# Return: questions.
 
   def nature
-    @questions = Question.where(area: "ciências da natureza e suas tecnologias").order(:year, :number)
 
+    @questions = Question.where(area: "ciências da natureza e suas tecnologias").order(:year, :number)
     return @questions
 
   end
@@ -142,8 +149,8 @@ class QuestionsController < ApplicationController
   def humans
 
     @questions = Question.where(area: "ciências humanas e suas tecnologias").order(:year, :number)
-
     return @questions
+
   end
 
   # Name:languages.
@@ -154,8 +161,8 @@ class QuestionsController < ApplicationController
   def languages
 
     @questions = Question.where(area: "linguagens, códigos e suas tecnologias").order(:year, :number)
-
     return @questions
+
   end
 
   # Name: math.
@@ -166,7 +173,6 @@ class QuestionsController < ApplicationController
   def math
 
     @questions = Question.where(area: "matemática e suas tecnologias").order(:year, :number)
-
     return @questions
 
   end
@@ -177,6 +183,7 @@ class QuestionsController < ApplicationController
 	# Return: questions.
 
   def recommended
+
     areas = ["ciências da natureza e suas tecnologias",
              "ciências humanas e suas tecnologias",
              "linguagens, códigos e suas tecnologias",
@@ -194,18 +201,15 @@ class QuestionsController < ApplicationController
 
   # Name: upload_questions.
 	# Objective: this method updates the questions.
-	# Parameters: don't have parameters.
+	# Parameters: questions file.
 	# Return: redirects to the questions page.
 
   def upload_questions
+
     uploaded_file = params[:questions_file]
-
     raise Exception if uploaded_file.nil?
-
     file_content = uploaded_file.read
-
     Parser.read_questions(file_content)
-
     flash[:success] = "Questões armazenadas com sucesso."
 
     return redirect_to questions_path
@@ -218,14 +222,11 @@ class QuestionsController < ApplicationController
 	# Return: redirects to the previous page.
 
   def upload_candidates_data
+
     uploaded_file = params[:candidates_data_file]
-
     raise Exception if uploaded_file.nil?
-
     file_content = uploaded_file.read
-
     Parser.read_candidates_data(file_content, params[:test_year])
-
     flash[:success] = "Dados armazenados com sucesso."
 
     return redirect_to questions_path
@@ -233,7 +234,7 @@ class QuestionsController < ApplicationController
   end
 
   # Name: next_question.
-	# Objective: this method
+	# Objective: this method redirect to the next question.
 	# Parameters: question identifier.
 	# Return: next question.
 
@@ -247,14 +248,16 @@ class QuestionsController < ApplicationController
 
   # Name: question_params.
 	# Objective:
-	# Parameters: year, are, number, enunciation, reference, iamge, right_answer,
+	# Parameters: year, area, number, enunciation, reference, image, right_answer,
   #             alternatives attributes identifier, alternatives attributes letter,
   #             alternatives attributes description.
 	# Return: nothing.
 
   def question_params
+
     params.require(:question).permit(:year,:area,:number,:enunciation,:reference,:image,:right_answer,
     :alternatives_attributes => [:id, :letter, :description])
+
   end
 
 end
