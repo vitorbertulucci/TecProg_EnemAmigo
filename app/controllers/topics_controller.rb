@@ -71,11 +71,6 @@ class TopicsController < ApplicationController
 
 	private
 
-		# Name: set_topic_attributes
-		# Objective: set topic attribute to create a topic in database.
-		# Parameters: topic object, name and description.
-		# Return: none.
-
 		def set_topic_attributes
 
 			params.require(:topic).permit(:name, :description)

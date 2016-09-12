@@ -148,11 +148,6 @@ class UsersController < ApplicationController
 
     private
 
-        # Name: set_user_attributes
-        # Objective: set user attributes in a user object
-        # Parameters: user object, name, email, leve, points and nickname
-        # Return: none
-
         def set_user_attributes
 
             params.require(:user).permit(:name, :email, :level, :points, :nickname,
