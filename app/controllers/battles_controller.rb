@@ -1,137 +1,243 @@
+# Class: battles_controller.rb.
+# Purpose: This class is designed to control the actions of battles in the Enem Amigo.
+# Enem Amigo.
+# FGA - Universidade de Brasília UnB.
+
 class BattlesController < ApplicationController
 
-  include BattlesHelper
+    include BattlesHelper
 
-  before_action :authenticate_user
-  before_action :verify_participation, only: [:show, :destroy]
-  before_action :verify_all_played, only: [:result]
-  before_action :verify_current_user_played, only: [:finish]
+    before_action :authenticate_user
+    before_action :verify_participation, only: [:show, :destroy]
+    before_action :verify_all_played, only: [:result]
+    before_action :verify_current_user_played, only: [:finish]
 
-  def new
-    @battle = Battle.new
-  end
+    # Name: new.
+    # Objective: this method instantiating the object battle.
+    # Parameters: don't have parameters.
+    # Return: @battle.
 
-  def create
-    @battle = Battle.new(player_1: current_user, player_2: User.where(nickname: params[:player_2_nickname]).first)
-    @battle.category = params[:battle][:category]
-    @battle.generate_questions
-    if @battle.save
-      new_battle_notification(@battle)
+    def new
 
-      flash[:success] = "Convite enviado com sucesso!"
-      redirect_to battles_path
-    else
-      flash[:danger] = "Usuário não encontrado"
-      render 'new'
-    end
-  end
+        @battle = Battle.new
 
-  def show
-    @battle = Battle.find(params[:id])
-    start_battle(@battle)
-    battle_answer_notification(@battle, true) unless is_player_1?(@battle)
-    @adversary = is_player_1?(@battle) ? @battle.player_2 : @battle.player_1
-    @question = @battle.questions[0]
-  end
+        return @battle
 
-  def index
-    @pending_battles = []
-    @waiting_battles = []
-    @finished_battles = []
-    @battles = current_user.battles.reverse
-    @battles.each do |battle|
-      if battle.all_played?
-        @finished_battles.push(battle)
-      elsif player_started?(battle)
-        @waiting_battles.push(battle)
-      else
-        @pending_battles.push(battle)
-      end
-    end
-  end
-
-  def destroy
-    @battle = Battle.find(params[:id])
-    battle_answer_notification(@battle, false)
-    @battle.destroy
-    redirect_to battles_path
-  end
-
-  def ranking
-    @users = User.order(:wins, :battle_points).reverse
-  end
-
-  def answer
-    battle = Battle.find(params[:id])
-
-    question_position = question_number(battle)
-
-    question = battle.questions[question_position]
-    @answer_letter = params[:alternative]
-
-    unless params[:alternative].blank?
-      question.update_attribute(:users_tries, question.users_tries + 1)
-
-      @correct_answer = (@answer_letter == question.right_answer)
-      question.update_attribute(:users_hits, question.users_hits + 1) if @correct_answer
-      if is_player_1?(battle)
-        battle.player_1_answers[question_position] = @answer_letter
-      else
-        battle.player_2_answers[question_position] = @answer_letter
-      end
-      question_position = question_position.succ
-      battle.save
     end
 
-    if question_position == battle.questions.count
-      process_time(battle)
-      flash[:success] = "Batalha finalizada com sucesso!"
-      render :js => "window.location.href += '/finish'"
-    else
-      @question = battle.questions[question_position]
-    end
-  end
+    # Name: create.
+    # Objective: this method create and save a battle.
+    # Parameters: don't have parameters.
+    # Return: @battle.
 
-  def finish
-    @battle = Battle.find(params[:id])
-    player_answers = is_player_1?(@battle) ? @battle.player_1_answers : @battle.player_2_answers
-    @answers = @battle.questions.zip(player_answers)
-    player_comparison = @answers.map { |x, y| x.right_answer == y }
-    player_comparison.delete(false)
+    def create
 
-    @player_points = player_comparison.count
-  end
+        @battle = Battle.new(player_1: current_user, player_2: User.where(nickname: params[:player_2_nickname]).first)
+        @battle.category = params[:battle][:category]
+        @battle.generate_questions
 
-  def result
-    @battle = Battle.find(params[:id])
+        if @battle.save
+            new_battle_notification(@battle)
+            flash[:success] = "Convite enviado com sucesso!"
+            return redirect_to battles_path
+        else
+            flash[:danger] = "Usuário não encontrado"
+            return render 'new'
+        end
 
-    if @battle.processed?
-      count_questions
-    else
-      process_result
+        return @battle
+
     end
 
-    @battle.reload
-    if is_player_1?(@battle)
-      current_player_answers = @battle.player_1_answers
-      adversary_answers = @battle.player_2_answers
-      @current_player_stats = [@player_1_points, @battle.player_1_time]
-      @adversary_stats = [@player_2_points, @battle.player_2_time]
-    else
-      current_player_answers = @battle.player_2_answers
-      adversary_answers = @battle.player_1_answers
-      @current_player_stats = [@player_2_points, @battle.player_2_time]
-      @adversary_stats = [@player_1_points, @battle.player_1_time]
+    # Name: show the battle.
+    # Objective: this method shows a battle.
+    # Parameters: don't have parameters.
+    # Return: @battle, @adversary, @question.
+
+    def show
+
+        @battle = Battle.find(params[:id])
+        start_battle(@battle)
+        battle_answer_notification(@battle, true) unless is_player_1?(@battle)
+        @adversary = is_player_1?(@battle) ? @battle.player_2 : @battle.player_1
+        @question = @battle.questions[0]
+
+        return @battle
+        return @adversary
+        return @question
+
     end
 
-    @current_player_stats[1] = @current_player_stats.second >= 610 ? "--:--" : "#{@current_player_stats.second/60}:#{@current_player_stats.second%60 < 10 ? "0" : ""}#{@current_player_stats.second%60}"
-    @adversary_stats[1] = @adversary_stats.second >= 610 ? "--:--" : "#{@adversary_stats.second/60}:#{@adversary_stats.second%60 < 10 ? "0" : ""}#{@adversary_stats.second%60}"
-    @answers = @battle.questions.zip(current_player_answers, adversary_answers)
-  end
+    # Name: index.
+    # Objective: this method show the index page.
+    # Parameters: don't have parameters.
+    # Return: @pending_battles, @waiting_battles, @finished_battles, @battles.
 
-  def generate_random_user
-    random_user = (User.all - [current_user]).sample
+    def index
 
-    render :text => random_user.nickname
-  end
+        @pending_battles = []
+        @waiting_battles = []
+        @finished_battles = []
+        @battles = current_user.battles.reverse
+        @battles.each do |battle|
+            if battle.all_played?
+                @finished_battles.push(battle)
+            elsif player_started?(battle)
+                @waiting_battles.push(battle)
+            else
+                @pending_battles.push(battle)
+            end
+        end
+
+        return @pending_battles
+        return @waiting_battles
+        return @finished_battles
+        return @battles
+
+    end
+
+    # Name: destroy.
+    # Objective: this method destroy a battle.
+    # Parameters: don't have parameters.
+    # Return: @battle.
+
+    def destroy
+
+        @battle = Battle.find(params[:id])
+        battle_answer_notification(@battle, false)
+        @battle.destroy
+
+        return redirect_to battles_path
+        return @battle
+
+    end
+
+    # Name: ranking.
+    # Objective: this method orders battles to create the ranking.
+    # Parameters: don't have parameters.
+    # Return: @users.
+
+    def ranking
+
+        @users = User.order(:wins, :battle_points).reverse
+
+        return @users
+
+    end
+
+    # Name: answer.
+    # Objective: this method shows the answers.
+    # Parameters: don't have parameters.
+    # Return: @answer_letter, @correct_answer, @question.
+
+    def answer
+
+        battle = Battle.find(params[:id])
+
+        question_position = question_number(battle)
+
+        question = battle.questions[question_position]
+        @answer_letter = params[:alternative]
+
+        unless params[:alternative].blank?
+            question.update_attribute(:users_tries, question.users_tries + 1)
+
+            @correct_answer = (@answer_letter == question.right_answer)
+            question.update_attribute(:users_hits, question.users_hits + 1) if @correct_answer
+            if is_player_1?(battle)
+                battle.player_1_answers[question_position] = @answer_letter
+            else
+                battle.player_2_answers[question_position] = @answer_letter
+            end
+            question_position = question_position.succ
+            battle.save
+        end
+
+        if question_position == battle.questions.count
+            process_time(battle)
+            flash[:success] = "Batalha finalizada com sucesso!"
+            return render :js => "window.location.href += '/finish'"
+        else
+            @question = battle.questions[question_position]
+        end
+
+        return @answer_letter
+        return @correct_answer
+        return @question
+
+    end
+
+    # Name: finish.
+    # Objective: this method finishes the battle.
+    # Parameters: don't have parameters.
+    # Return: @battle, @answers, @player_points.
+
+    def finish
+
+        @battle = Battle.find(params[:id])
+        player_answers = is_player_1?(@battle) ? @battle.player_1_answers : @battle.player_2_answers
+        @answers = @battle.questions.zip(player_answers)
+        player_comparison = @answers.map { |x, y| x.right_answer == y }
+        player_comparison.delete(false)
+
+        @player_points = player_comparison.count
+
+        return @battle
+        return @answers
+        return @player_points
+
+    end
+
+    # Name: result.
+    # Objective: this method shows the result of the battle.
+    # Parameters: don't have parameters.
+    # Return: @battle, @current_player_stats, @adversary_stats, @answers.
+
+    def result
+
+        @battle = Battle.find(params[:id])
+
+        if @battle.processed?
+            count_questions
+        else
+            process_result
+        end
+
+        @battle.reload
+        if is_player_1?(@battle)
+            current_player_answers = @battle.player_1_answers
+            adversary_answers = @battle.player_2_answers
+            @current_player_stats = [@player_1_points, @battle.player_1_time]
+            @adversary_stats = [@player_2_points, @battle.player_2_time]
+        else
+            current_player_answers = @battle.player_2_answers
+            adversary_answers = @battle.player_1_answers
+            @current_player_stats = [@player_2_points, @battle.player_2_time]
+            @adversary_stats = [@player_1_points, @battle.player_1_time]
+        end
+
+        @current_player_stats[1] = @current_player_stats.second >= 610 ? "--:--" : "#{@current_player_stats.second / 60}:#{@current_player_stats.second % 60 < 10 ? "0" : ""}#{@current_player_stats.second % 60}"
+        @adversary_stats[1] = @adversary_stats.second >= 610 ? "--:--" : "#{@adversary_stats.second / 60}:#{@adversary_stats.second % 60 < 10 ? "0" : ""}#{@adversary_stats.second % 60}"
+        @answers = @battle.questions.zip(current_player_answers, adversary_answers)
+
+        return @battle
+        return @current_player_stats
+        return @adversary_stats
+        return @answers
+
+    end
+
+    # Name: generate_random_user.
+    # Objective: this method create a random user.
+    # Parameters: don't have parameters.
+    # Return: render :text => random_user.nickname.
+
+    def generate_random_user
+
+        random_user = (User.all - [current_user]).sample
+
+        return render :text => random_user.nickname
+
+    end
+
 end
