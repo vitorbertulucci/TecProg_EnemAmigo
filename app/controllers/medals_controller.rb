@@ -17,6 +17,9 @@ class MedalsController < ApplicationController
     check_medals
     @missing_medals = @medals - current_user.medals
 
+    assert(@missing_medals >= 0, 'Invalid value for missing medals')
+    assert(@medals != nil, 'Medals array can not be null')
+
     return @missing_medals
     return @medals
 
