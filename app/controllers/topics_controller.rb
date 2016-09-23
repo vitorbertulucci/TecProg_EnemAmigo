@@ -19,6 +19,7 @@ class TopicsController < ApplicationController
 	def new
 
 		@topic = Topic.new(nil)
+		assert(@topic != nil, 'Can\'t create a Topic object!')
 
 		return @topic
 
@@ -32,6 +33,7 @@ class TopicsController < ApplicationController
 	def create
 
 		@topic = Topic.new(set_topic_attributes)
+		assert(@topic != nil, 'Can\'t create a Topic object!')
 
 		if(@topic.save)
 			flash[:success] = "Tópico criado com sucesso"
@@ -50,6 +52,8 @@ class TopicsController < ApplicationController
 	def show
 
 		@topic = Topic.find(params[:id])
+		assert(@topic != nil, 'Can\'t find a Topic with this identifier')
+
 		session[:topic_id] = @topic.id
 
 		return @topic
