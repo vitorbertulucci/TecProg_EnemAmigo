@@ -16,7 +16,11 @@ class UsersController < ApplicationController
     def new
 
         @home_page = true
+        assert(@home_page, 'Home page is not valid.')
+
         @user = User.new
+        assert(@user.kind_of(User), 'User object is not valid')
+
         if (logged_in?)
             return redirect_to current_user
         else
@@ -33,6 +37,8 @@ class UsersController < ApplicationController
     def edit
 
         @user = User.find(params[:id])
+        assert(@user != nil, 'Do not have any User with this identifier')
+
         return @user
 
     end
@@ -45,7 +51,11 @@ class UsersController < ApplicationController
     def destroy
 
         @user = User.find(params[:id])
+        assert(@user != nil, 'Do not have any User with this identifier')
+
         @user.destroy
+        assert(@user == nil, 'User doesn\'t have been destroyed.')
+
         flash[:success] = "Usuário foi deletado"
         return redirect_to users_path
 
@@ -59,6 +69,8 @@ class UsersController < ApplicationController
     def show
 
         @user = User.find(params[:id])
+        assert(@user != nil, 'Do not have any User with this identifier')
+
         return find_level current_user.points
 
     end
@@ -71,13 +83,19 @@ class UsersController < ApplicationController
     def create
 
         @user = User.new(set_user_attributes)
+        assert(@user != nil, 'Couldn\'t create a user with this attibutes')
+
         if(@user.save)
             flash[:success] = "Usuário criado com sucesso!"
             log_in @user
+            assert(@user == current_user, 'Failed on loggin user.')
+
             first_notification
             return redirect_to root_path
         else
             @home_page = true
+            assert(@home_page, 'Home page is not valid.')
+
             return render 'new'
         end
 
@@ -91,6 +109,8 @@ class UsersController < ApplicationController
     def update
 
         @user = User.find(params[:id])
+        assert(@user != nil, 'Do not have any User with this identifier')
+
         if(@user.update_attributes(set_user_attributes))
             flash[:success]= "Usuário atualizado"
             return redirect_to @user
@@ -108,6 +128,7 @@ class UsersController < ApplicationController
     def index
 
         @users = User.all
+
         return @users
 
     end
@@ -121,9 +142,13 @@ class UsersController < ApplicationController
 
         if(logged_in?)
             @users = User.order(:points).reverse
+            assert(@user != nil, 'Couldn\'t find any users.')
+
             return @users
         else
             @home_page = true
+            assert(@home_page, 'Home page is not valid.')
+
             return @home_page
         end
 
