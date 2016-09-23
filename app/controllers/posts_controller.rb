@@ -35,10 +35,10 @@ class PostsController < ApplicationController
     + 'because does not belong to controller')
 
     @post.user_id = current_user.id
-    assert(@post.user_id == nil, 'The attribute user_id of @post is null')
+    assert(@post.user_id != nil, 'The attribute user_id of @post is null')
 
     @post.topic_id = session[:topic_id]
-    assert(@post.topic_id == nil, 'The attribute topic_id of @post is null')
+    assert(@post.topic_id != nil, 'The attribute topic_id of @post is null')
 
     if(@post.save)
       flash[:success] = "Postagem criada com sucesso"
@@ -57,7 +57,7 @@ class PostsController < ApplicationController
   def show
 
     @post = Post.find(params[:id])
-    assert(@post == nil, 'The object @post is null')
+    assert(@post != nil, 'The object @post is null')
 
     return @post
 
@@ -71,7 +71,7 @@ class PostsController < ApplicationController
   def index
 
     @posts = Post.all
-    assert(@posts == nil, 'The array @posts is null')
+    assert(@posts != nil, 'The array @posts is null')
 
     return @posts
 
@@ -85,7 +85,7 @@ class PostsController < ApplicationController
   def edit
 
     @post = Post.find(params[:post_id])
-    assert(@post == nil, 'The object @post is null')
+    assert(@post != nil, 'The object @post is null')
 
     return @post
 
@@ -99,7 +99,7 @@ class PostsController < ApplicationController
   def update
 
     @post = Post.find(params[:post_id])
-    assert(@post == nil, 'The object @post is null')
+    assert(@post != nil, 'The object @post is null')
 
     if(@post.update_attributes(set_post_params))
       flash[:success] = "Seu post foi atualizado com sucesso"
@@ -131,7 +131,7 @@ class PostsController < ApplicationController
 
     render nothing: true
     post = Post.find(params[:id])
-    assert(@post == nil, 'The object @post is null')
+    assert(@post != nil, 'The object @post is null')
 
     if(!post.user_ratings.include? current_user.id)
       post.user_ratings.push(current_user.id)

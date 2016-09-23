@@ -13,6 +13,7 @@ class SessionsController < ApplicationController
   def new
 
     @home_page = true
+    assert(@home_page, 'Home page is not valid.')
 
     return @home_page
 
@@ -26,9 +27,11 @@ class SessionsController < ApplicationController
   def create
 
     user = User.find_by(email: params[:session][:email].downcase)
+    assert(@user != nil, 'Do not have any User with this email')
 
     if(user && user.authenticate(params[:session][:password]))
       log_in(user)
+      assert(user != nil, 'The user object is null')
       redirect_to(root_path)
       flash[:success] = "Logado com sucesso!"
     else
@@ -51,7 +54,7 @@ class SessionsController < ApplicationController
       #nothing to do
     end
 
-    return redirect_to login_path
+    return redirect_to(login_path)
 
   end
 
