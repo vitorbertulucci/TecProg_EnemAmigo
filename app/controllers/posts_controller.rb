@@ -150,10 +150,10 @@ class PostsController < ApplicationController
   def destroy
 
     @post = Post.find(params[:post_id])
-    assert(@post == nil, 'The object @post is null')
+    assert(@post != nil, 'The object @post is null')
 
     @post.destroy
-    assert(@post != nil, 'The object @post isnt null')
+    assert(@post == nil, 'The object @post isnt null')
 
     flash[:success] = "Post deletado com sucesso"
 

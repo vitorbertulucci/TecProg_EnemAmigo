@@ -35,10 +35,10 @@ class CommentsController < ApplicationController
     + 'because does not belong to controller')
 
     @comment.user_id = current_user.id
-    assert(@comment.user_id == nil, 'The attribute user_id of @comment is null')
+    assert(@comment.user_id != nil, 'The attribute user_id of @comment is null')
 
     @comment.post_id = params[:post_id]
-    assert(@comment.post_id == nil, 'The attribute post_id of @comment is null')
+    assert(@comment.post_id != nil, 'The attribute post_id of @comment is null')
 
     if (@comment.save)
       flash[:success] = 'Seu comentário foi criado com sucesso'
@@ -57,7 +57,7 @@ class CommentsController < ApplicationController
   def edit
 
     @comment = Comment.find(params[:comment_id])
-    assert(@comment == nil, 'The object @comment is null')
+    assert(@comment != nil, 'The object @comment is null')
 
     return @comment
 
@@ -71,7 +71,7 @@ class CommentsController < ApplicationController
   def update
 
     @comment = Comment.find(params[:comment_id])
-    assert(@comment == nil, 'The object @comment is null')
+    assert(@comment != nil, 'The object @comment is null')
 
     if (@comment.update_attributes(comment_params))
       flash[:success] = "Seu comentário foi atualizado com sucesso"
@@ -91,7 +91,7 @@ class CommentsController < ApplicationController
 
     render nothing: true
     comment = Comment.find(params[:id])
-    assert(@comment == nil, 'The object @comment is null')
+    assert(@comment != nil, 'The object @comment is null')
 
     if(!comment.user_ratings.include? current_user.id)
       comment.user_ratings.push(current_user.id)
@@ -110,10 +110,10 @@ class CommentsController < ApplicationController
   def destroy
 
     @comment = Comment.find(params[:comment_id])
-    assert(@comment == nil, 'The object @comment is null')
+    assert(@comment != nil, 'The object @comment is null')
 
     @comment.destroy
-    assert(@comment != nil, 'The object @comment was not destroyed because'
+    assert(@comment == nil, 'The object @comment was not destroyed because'
     + 'isnt null')
 
     flash[:success] = "Comentário deletado com sucesso"
@@ -130,7 +130,7 @@ class CommentsController < ApplicationController
   def show
 
     @comment = Comment.find(params[:id])
-    assert(@comment == nil, 'The object @comment is null')
+    assert(@comment != nil, 'The object @comment is null')
 
     return @comment
 
