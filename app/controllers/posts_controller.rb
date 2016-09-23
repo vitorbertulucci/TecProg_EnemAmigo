@@ -16,6 +16,8 @@ class PostsController < ApplicationController
   def new
 
     @post = Post.new(nil)
+    assert(@post.kind_of?(Post), 'The object @post it could not be instantiated'
+    + 'because does not belong to controller')
 
     return @post
 
@@ -29,14 +31,20 @@ class PostsController < ApplicationController
   def create
 
     @post = Post.new(set_post_params)
+    assert(@post.kind_of?(Post), 'The object @post it could not be instantiated'
+    + 'because does not belong to controller')
+
     @post.user_id = current_user.id
+    assert(@post.user_id == nil, 'The attribute user_id of @post is null')
+
     @post.topic_id = session[:topic_id]
+    assert(@post.topic_id == nil, 'The attribute topic_id of @post is null')
 
     if(@post.save)
       flash[:success] = "Postagem criada com sucesso"
       return redirect_to Topic.find(session[:topic_id])
     else
-      return render 'new'
+      return render('new')
     end
 
   end
@@ -49,6 +57,7 @@ class PostsController < ApplicationController
   def show
 
     @post = Post.find(params[:id])
+    assert(@post == nil, 'The object @post is null')
 
     return @post
 
@@ -62,6 +71,7 @@ class PostsController < ApplicationController
   def index
 
     @posts = Post.all
+    assert(@posts == nil, 'The array @posts is null')
 
     return @posts
 
@@ -75,6 +85,7 @@ class PostsController < ApplicationController
   def edit
 
     @post = Post.find(params[:post_id])
+    assert(@post == nil, 'The object @post is null')
 
     return @post
 
@@ -88,6 +99,7 @@ class PostsController < ApplicationController
   def update
 
     @post = Post.find(params[:post_id])
+    assert(@post == nil, 'The object @post is null')
 
     if(@post.update_attributes(set_post_params))
       flash[:success] = "Seu post foi atualizado com sucesso"
@@ -106,6 +118,7 @@ class PostsController < ApplicationController
   def user_name(user_id)
 
     user = User.where(id: user_id).name
+    assert(user.kind_of(User), 'User object is not valid')
 
   end
 
@@ -118,6 +131,7 @@ class PostsController < ApplicationController
 
     render nothing: true
     post = Post.find(params[:id])
+    assert(@post == nil, 'The object @post is null')
 
     if(!post.user_ratings.include? current_user.id)
       post.user_ratings.push(current_user.id)
@@ -136,7 +150,11 @@ class PostsController < ApplicationController
   def destroy
 
     @post = Post.find(params[:post_id])
+    assert(@post == nil, 'The object @post is null')
+
     @post.destroy
+    assert(@post != nil, 'The object @post isnt null')
+
     flash[:success] = "Post deletado com sucesso"
 
     return redirect_to(Topic.find(session[:topic_id]))

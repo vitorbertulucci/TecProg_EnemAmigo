@@ -17,7 +17,6 @@ class CommentsController < ApplicationController
   def new
 
     @comment = Comment.new(nil)
-
     assert(@comment.kind_of?(Comment), 'The object @comment it could not be instantiated')
 
     return @comment
@@ -36,10 +35,10 @@ class CommentsController < ApplicationController
     + 'because does not belong to controller')
 
     @comment.user_id = current_user.id
-    assert(@comment.user_id == nil, 'The object @comment is null')
+    assert(@comment.user_id == nil, 'The attribute user_id of @comment is null')
 
     @comment.post_id = params[:post_id]
-    assert(@comment.post_id == nil, 'The object @comment is null')
+    assert(@comment.post_id == nil, 'The attribute post_id of @comment is null')
 
     if (@comment.save)
       flash[:success] = 'Seu comentário foi criado com sucesso'
