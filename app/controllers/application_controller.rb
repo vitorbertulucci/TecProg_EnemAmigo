@@ -61,6 +61,16 @@ class ApplicationController < ActionController::Base
 
         end
 
+        def assert(condition, message)
+
+          if(condition)
+            # nothing to do
+          else
+            server_exception(message)
+          end
+          
+        end
+
     end
 
 end
