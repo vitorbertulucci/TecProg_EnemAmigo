@@ -12,9 +12,12 @@ class SessionsController < ApplicationController
 
   def new
 
-    @home_page = true
+    @start_session = true # Permission to create and initiate a new session on system.
+    logger.debug('A new session has been instantiated')
+    assert(@start_session, 'Home page is not valid.')
 
-    return @home_page
+    return @start_session
+    logger.debug('The permission of session has been passed')
 
   end
 
@@ -26,14 +29,20 @@ class SessionsController < ApplicationController
   def create
 
     user = User.find_by(email: params[:session][:email].downcase)
+    logger.debug('Finding the user by username / email')
+    assert(@user != nil, 'Do not have any User with this email')
 
+    # Checking if the password is right to log the user in the system
     if(user && user.authenticate(params[:session][:password]))
       log_in(user)
-      redirect_to(root_path)
-      flash[:success] = "Logado com sucesso!"
+      logger.debug('User logged in system')
+      assert(user != nil, 'The user object is null')
+      redirect_to(root_path) # Redirects the user to the home page.
+      flash[:success] = 'Logado com sucesso!'
     else
       flash.now[:danger] = 'Combinação inválida de e-mail/senha'
-      render('new')
+      render('new') # Redirects the user to the login page.
+      logger.info('Application redirect to session page')
     end
 
   end
@@ -47,11 +56,13 @@ class SessionsController < ApplicationController
 
     if(current_user)
       log_out
+      logger.debug('User logged out system')
     else
       #nothing to do
     end
 
-    return redirect_to login_path
+    return redirect_to(login_path)
+    logger.info('Application redirect to session log out page')
 
   end
 
