@@ -125,6 +125,82 @@ class BattlesController < ApplicationController
 
     end
 
+    # Name: answer_status
+    # Objective:
+    # Parameters:
+    # Return:
+
+    def answer_status
+
+       @answer_letter == true
+
+       if(question.right_answer == true)
+         @answer_letter = true
+       else
+         @answer_letter = false
+       end
+
+    end
+
+    # Name: choose_correct_player
+    # Objective:
+    # Parameters:
+    # Return:
+
+    def choose_correct_player
+
+      player_chosen = is_player_1?(battle)
+
+      if(player_chosen)
+          battle.player_1_answers[question_position] = @answer_letter
+      else
+          battle.player_2_answers[question_position] = @answer_letter
+      end
+
+    end
+
+    # Name: update_hits_player
+    # Objective:
+    # Parameters:
+    # Return:
+
+    def update_hits_player
+
+      @correct_answer = answer_status
+
+      if(@correct_answer)
+        question.update_attribute(:users_hits, question.users_hits + 1)
+      else
+        # Nothing to do.
+      end
+
+    end
+
+    # Name: save_battle_status
+    # Objective:
+    # Parameters:
+    # Return:
+
+    def save_battle_status
+
+      @answer_letter = params[:alternative]
+
+      if(@answer_letter.blank?)
+          question.update_attribute(:users_tries, question.users_tries + 1)
+
+          update_hits_player
+
+          choose_correct_player
+
+          question_position = question_position.succ
+
+          battle.save
+      else
+        # Nothing to do.
+      end
+
+    end
+
     # Name: answer.
     # Objective: this method shows the answers.
     # Parameters: don't have parameters.
@@ -137,21 +213,8 @@ class BattlesController < ApplicationController
         question_position = question_number(battle)
 
         question = battle.questions[question_position]
-        @answer_letter = params[:alternative]
 
-        unless params[:alternative].blank?
-            question.update_attribute(:users_tries, question.users_tries + 1)
-
-            @correct_answer = (@answer_letter == question.right_answer)
-            question.update_attribute(:users_hits, question.users_hits + 1) if @correct_answer
-            if is_player_1?(battle)
-                battle.player_1_answers[question_position] = @answer_letter
-            else
-                battle.player_2_answers[question_position] = @answer_letter
-            end
-            question_position = question_position.succ
-            battle.save
-        end
+        save_battle_status
 
         if question_position == battle.questions.count
             process_time(battle)
