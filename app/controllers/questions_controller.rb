@@ -83,10 +83,53 @@ class QuestionsController < ApplicationController
 
   end
 
-  # Name: answer.
-	# Objective: this method verify if the question is right or wrong.
-	# Parameters: question identifier, alternative answer.
-	# Return: nothing.
+  # Name: question_status
+	# Objective: this method deletes the selected question.
+	# Parameters: question identifier.
+	# Return: redirect to the questions page.
+
+  private
+
+  def question_status
+
+    @correct_answer = true
+
+    if(question.right_answer == true)
+      @answer_letter = true
+    else
+      @answer_letter = false
+    end
+
+    return @correct_answer
+
+  end
+
+  # Name: show_question_status
+	# Objective:
+	# Parameters:
+	# Return:
+
+  private
+
+  def show_question_status
+
+    @correct_answer = question_status
+
+    respond_to do |format|
+      format.html {
+        redirect_to(questions_path)
+      }
+      format.js {
+        @correct_answer
+      }
+    end
+
+  end
+
+  # Name: answer
+	# Objective:
+	# Parameters:
+	# Return:
 
   def answer
     question = Question.find(params[:id])
@@ -100,13 +143,7 @@ class QuestionsController < ApplicationController
       current_user.update_attribute(:tried_questions, current_user.tried_questions << question.id)
       question.update_attribute(:users_tries, question.users_tries + 1)
 
-      @correct_answer = (@answer_letter == question.right_answer)
-
-      respond_to do |format|
-        format.html { redirect_to questions_path }
-        format.js { @correct_answer }
-
-      end
+      show_question_status
 
       if (@correct_answer)
           question.update_attribute(:users_hits, question.users_hits + 1)
