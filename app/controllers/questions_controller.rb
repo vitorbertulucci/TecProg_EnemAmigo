@@ -109,13 +109,16 @@ class QuestionsController < ApplicationController
       end
 
       if (@correct_answer)
-        question.update_attribute(:users_hits, question.users_hits + 1)
-        unless current_user.accepted_questions.include? question.id
-          current_user.accepted_questions.push(question.id)
-          current_user.update_attribute(:points, current_user.points + 4)
+          question.update_attribute(:users_hits, question.users_hits + 1)
+          unless current_user.accepted_questions.include? question.id
+              current_user.accepted_questions.push(question.id)
+              current_user.update_attribute(:points, current_user.points + 4)
 
-        end
+          end
+      else
+        # nothing to do
       end
+
     end
 
   end
