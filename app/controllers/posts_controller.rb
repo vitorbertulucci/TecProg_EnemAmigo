@@ -15,6 +15,7 @@ class PostsController < ApplicationController
 
   def new
 
+    # To instance a new post object
     @post = Post.new(nil)
     assert(@post.kind_of?(Post), 'The object @post it could not be instantiated'
     + 'because does not belong to controller')
@@ -30,16 +31,20 @@ class PostsController < ApplicationController
 
   def create
 
+    # To create a new post on topic
     @post = Post.new(set_post_params)
     assert(@post.kind_of?(Post), 'The object @post it could not be instantiated'
     + 'because does not belong to controller')
 
+    # Add the attribute id of current user to create a new post object
     @post.user_id = current_user.id
     assert(@post.user_id != nil, 'The attribute user_id of @post is null')
 
+    # Add the attribute topic id to create a new post object
     @post.topic_id = session[:topic_id]
     assert(@post.topic_id != nil, 'The attribute topic_id of @post is null')
 
+    # Validate the creation of the object to redirect their respective topic
     if(@post.save)
       flash[:success] = "Postagem criada com sucesso"
       return redirect_to Topic.find(session[:topic_id])
@@ -56,6 +61,7 @@ class PostsController < ApplicationController
 
   def show
 
+    # Find the post for viewing
     @post = Post.find(params[:id])
     assert(@post != nil, 'The object @post is null')
 
@@ -70,6 +76,7 @@ class PostsController < ApplicationController
 
   def index
 
+    # Search all posts of current user
     @posts = Post.all
     assert(@posts != nil, 'The array @posts is null')
 
@@ -84,6 +91,7 @@ class PostsController < ApplicationController
 
   def edit
 
+    # To seek proper post to be edited using your id as parameter
     @post = Post.find(params[:post_id])
     assert(@post != nil, 'The object @post is null')
 
@@ -98,9 +106,11 @@ class PostsController < ApplicationController
 
   def update
 
+    # To update the review with their modifications due, taking the function to edit attributes
     @post = Post.find(params[:post_id])
     assert(@post != nil, 'The object @post is null')
 
+    # Validate the update of the object to redirect their respective topic
     if(@post.update_attributes(set_post_params))
       flash[:success] = "Seu post foi atualizado com sucesso"
       redirect_to Topic.find(session[:topic_id])
@@ -117,6 +127,7 @@ class PostsController < ApplicationController
 
   def user_name(user_id)
 
+    # Seek user by your name to display on the screen
     user = User.where(id: user_id).name
     assert(user.kind_of(User), 'User object is not valid')
 
@@ -130,9 +141,12 @@ class PostsController < ApplicationController
   def rate_post
 
     render nothing: true
+
+    # Destined to find its post and make a request to rate
     post = Post.find(params[:id])
     assert(@post != nil, 'The object @post is null')
 
+    # Validate the rates made by the current user on the system and then save
     if(!post.user_ratings.include? current_user.id)
       post.user_ratings.push(current_user.id)
       post.save
@@ -149,12 +163,15 @@ class PostsController < ApplicationController
 
   def destroy
 
+    # Destined to find its post and make a request to delete
     @post = Post.find(params[:post_id])
     assert(@post != nil, 'The object @post is null')
 
+    # To delete the post, destroying their dependencies with topic foreign key
     @post.destroy
     assert(@post == nil, 'The object @post isnt null')
 
+    # Show on the screen a success message in operation
     flash[:success] = "Post deletado com sucesso"
 
     return redirect_to(Topic.find(session[:topic_id]))
