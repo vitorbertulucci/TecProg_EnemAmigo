@@ -16,6 +16,7 @@ class CommentsController < ApplicationController
 
   def new
 
+    # To instance a new comment object
     @comment = Comment.new(nil)
     assert(@comment.kind_of?(Comment), 'The object @comment it could not be instantiated')
 
@@ -30,16 +31,20 @@ class CommentsController < ApplicationController
 
   def create
 
+    # To create a new comment on topic.
     @comment = Comment.new(set_comment_params)
     assert(@comment.kind_of?(Comment), 'The object @comment it could not be instantiated'
     + 'because does not belong to controller')
 
+    # Add the attribute id of current user to create a new comment object
     @comment.user_id = current_user.id
     assert(@comment.user_id != nil, 'The attribute user_id of @comment is null')
 
+    # Add the attribute post id to create a new comment object
     @comment.post_id = params[:post_id]
     assert(@comment.post_id != nil, 'The attribute post_id of @comment is null')
 
+    # Validate the creation of the object to redirect their respective topic
     if (@comment.save)
       flash[:success] = 'Seu comentário foi criado com sucesso'
       return redirect_to(Topic.find(session[:topic_id]))
@@ -56,6 +61,7 @@ class CommentsController < ApplicationController
 
   def edit
 
+    # To seek proper comment to be edited using your id as parameter
     @comment = Comment.find(params[:comment_id])
     assert(@comment != nil, 'The object @comment is null')
 
@@ -70,9 +76,11 @@ class CommentsController < ApplicationController
 
   def update
 
+    # To update the review with their modifications due, taking the function to edit attributes
     @comment = Comment.find(params[:comment_id])
     assert(@comment != nil, 'The object @comment is null')
 
+    # Validate the update of the object to redirect their respective topic
     if (@comment.update_attributes(comment_params))
       flash[:success] = "Seu comentário foi atualizado com sucesso"
       return redirect_to(Topic.find(session[:topic_id]))
@@ -90,9 +98,12 @@ class CommentsController < ApplicationController
   def rate_comment
 
     render nothing: true
+
+    # Destined to find its comment and make a request to rate.
     comment = Comment.find(params[:id])
     assert(@comment != nil, 'The object @comment is null')
 
+    # Validate the evaluations made by the current user on the system and then save.
     if(!comment.user_ratings.include? current_user.id)
       comment.user_ratings.push(current_user.id)
       comment.save
@@ -109,13 +120,16 @@ class CommentsController < ApplicationController
 
   def destroy
 
+    # Destined to find its comment and make a request to delete.
     @comment = Comment.find(params[:comment_id])
     assert(@comment != nil, 'The object @comment is null')
 
+    # To delete the comment, destroying their dependencies with topic foreign key.
     @comment.destroy
     assert(@comment == nil, 'The object @comment was not destroyed because'
     + 'isnt null')
 
+    # Show on the screen a success message in operation.
     flash[:success] = "Comentário deletado com sucesso"
 
     return redirect_to(Topic.find(session[:topic_id]))
@@ -129,6 +143,7 @@ class CommentsController < ApplicationController
 
   def show
 
+    # Find the commentar for viewing.
     @comment = Comment.find(params[:id])
     assert(@comment != nil, 'The object @comment is null')
 
