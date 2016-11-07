@@ -214,6 +214,8 @@ class BattlesController < ApplicationController
 
         question = battle.questions[question_position]
 
+        @correct_answer = answer_status
+
         save_battle_status
 
         if question_position == battle.questions.count
@@ -223,6 +225,8 @@ class BattlesController < ApplicationController
         else
             @question = battle.questions[question_position]
         end
+
+        @answer_letter = params[:alternative]
 
         return @answer_letter
         return @correct_answer
