@@ -19,6 +19,7 @@ class BattlesController < ApplicationController
 
     def new
 
+        # To instance a battle object
         @battle = Battle.new
 
         return @battle
@@ -32,11 +33,17 @@ class BattlesController < ApplicationController
 
     def create
 
+        # To create a new battle.
         @battle = Battle.new(player_1: current_user, player_2: User.where(nickname: params[:player_2_nickname]).first)
+
+        # Add the attribute category to create a new battle object.
         @battle.category = params[:battle][:category]
+
+        # Set generate questions on battle object
         @battle.generate_questions
 
-        if @battle.save
+        # Validate the creation of the object to sent the notification
+        if (@battle.save)
             new_battle_notification(@battle)
             flash[:success] = "Convite enviado com sucesso!"
             return redirect_to battles_path
@@ -56,9 +63,12 @@ class BattlesController < ApplicationController
 
     def show
 
+        # To seek proper battle to start using your id as parameter.
         @battle = Battle.find(params[:id])
         start_battle(@battle)
         battle_answer_notification(@battle, true) unless is_player_1?(@battle)
+
+        # Check the users in battle.
         @adversary = is_player_1?(@battle) ? @battle.player_2 : @battle.player_1
         @question = @battle.questions[0]
 
@@ -80,7 +90,7 @@ class BattlesController < ApplicationController
         @finished_battles = []
         @battles = current_user.battles.reverse
         @battles.each do |battle|
-            if battle.all_played?
+            if (battle.all_played?)
                 @finished_battles.push(battle)
             elsif player_started?(battle)
                 @waiting_battles.push(battle)
@@ -103,6 +113,7 @@ class BattlesController < ApplicationController
 
     def destroy
 
+        # To seek proper battle to destroy using your id as parameter.
         @battle = Battle.find(params[:id])
         battle_answer_notification(@battle, false)
         @battle.destroy
@@ -119,6 +130,7 @@ class BattlesController < ApplicationController
 
     def ranking
 
+        # To order the palyers by wins and battle points.
         @users = User.order(:wins, :battle_points).reverse
 
         return @users
@@ -134,6 +146,7 @@ class BattlesController < ApplicationController
 
        @answer_letter == true
 
+       # Check the asnwer of question and set this.
        if(question.right_answer == true)
          @answer_letter = true
        else
@@ -168,6 +181,7 @@ class BattlesController < ApplicationController
 
       @correct_answer = answer_status
 
+      # Update the hits of user if the answer of questins was correct.
       if(@correct_answer)
         question.update_attribute(:users_hits, question.users_hits + 1)
       else
@@ -185,6 +199,7 @@ class BattlesController < ApplicationController
 
       @answer_letter = params[:alternative]
 
+      # Update and save the hits of player  and battle if the answer was blank.
       if(@answer_letter.blank?)
           question.update_attribute(:users_tries, question.users_tries + 1)
 
@@ -208,6 +223,7 @@ class BattlesController < ApplicationController
 
     def answer
 
+        # To seek a bttle according to the id.
         battle = Battle.find(params[:id])
 
         question_position = question_number(battle)
@@ -218,7 +234,8 @@ class BattlesController < ApplicationController
 
         save_battle_status
 
-        if question_position == battle.questions.count
+        # Finish the battle if the question position was equals of quantity of questions in battle.
+        if (question_position == battle.questions.count)
             process_time(battle)
             flash[:success] = "Batalha finalizada com sucesso!"
             return render :js => "window.location.href += '/finish'"
@@ -241,6 +258,7 @@ class BattlesController < ApplicationController
 
     def finish
 
+        # To seek a battle by id to finish and show player points.
         @battle = Battle.find(params[:id])
         player_answers = is_player_1?(@battle) ? @battle.player_1_answers : @battle.player_2_answers
         @answers = @battle.questions.zip(player_answers)
@@ -262,14 +280,16 @@ class BattlesController < ApplicationController
 
     def result
 
+        # To seek a battle according to id .
         @battle = Battle.find(params[:id])
 
-        if @battle.processed?
+        if (@battle.processed?)
             count_questions
         else
             process_result
         end
 
+        # Reload the battle.
         @battle.reload
         if is_player_1?(@battle)
             current_player_answers = @battle.player_1_answers
