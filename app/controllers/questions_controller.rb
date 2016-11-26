@@ -12,13 +12,15 @@ class QuestionsController < ApplicationController
   include QuestionsHelper
 
   # Name: index.
-	# Objective: this method organizes issues per year and number.
-	# Parameters: year and number.
-	# Return: questions.
+  # Objective: this method organizes issues per year and number.
+  # Parameters: year and number.
+  # Return: questions.
 
   def index
 
+    # To instance a new questions object.
     @questions = Question.all.order(:year, :number)
+
     return @questions
 
   end
@@ -30,6 +32,7 @@ class QuestionsController < ApplicationController
 
   def edit
 
+    # To seek a question according to the id.
     @question = Question.find(params[:id])
     return @question
 
@@ -42,8 +45,10 @@ class QuestionsController < ApplicationController
 
   def update
 
+    # To seek a question according to the id to update.
     @question = Question.find(params[:id])
 
+    # Update the question according to return values of attributes.
     if (@question.update_attributes(question_params))
       flash[:success] = "Questão atualizada com sucesso!"
 
@@ -63,6 +68,7 @@ class QuestionsController < ApplicationController
 
   def show
 
+    # To seek a proper question to show.
     @question = Question.find(params[:id])
     return @question
 
@@ -75,6 +81,7 @@ class QuestionsController < ApplicationController
 
   def destroy
 
+    # To seek a proper question to destroy.
     @question = Question.find(params[:id])
     @question.destroy
     flash[:success] = "Questão deletada com sucesso!"
@@ -94,6 +101,7 @@ class QuestionsController < ApplicationController
 
     @correct_answer = true
 
+    # To set the answer letter according to the expected.
     if(question.right_answer == true)
       @answer_letter = true
     else
@@ -132,8 +140,11 @@ class QuestionsController < ApplicationController
 	# Return:
 
   def answer
+
+    # To seek a proper question according to id.
     question = Question.find(params[:id])
     @answer_letter = params[:alternative]
+
 
     if (params[:alternative].blank?)
 
@@ -145,6 +156,7 @@ class QuestionsController < ApplicationController
 
       show_question_status
 
+      # Update the user hits if the asnwers as correct.
       if (@correct_answer)
           question.update_attribute(:users_hits, question.users_hits + 1)
           unless current_user.accepted_questions.include? question.id
@@ -176,51 +188,55 @@ class QuestionsController < ApplicationController
 
   def nature
 
+    # Create a new definition for questions.
     @questions = Question.where(area: "ciências da natureza e suas tecnologias").order(:year, :number)
     return @questions
 
   end
 
   # Name: humans.
-	# Objective: this method allocates the question in "humans sciences".
-	# Parameters: don't have parameters.
-	# Return: questions.
+  # Objective: this method allocates the question in "humans sciences".
+  # Parameters: don't have parameters.
+  # Return: questions.
 
   def humans
 
+    # Create a new definition for questions.
     @questions = Question.where(area: "ciências humanas e suas tecnologias").order(:year, :number)
     return @questions
 
   end
 
   # Name:languages.
-	# Objective: this method allocates the question in "languages".
-	# Parameters: don't have parameters.
-	# Return: questions.
+  # Objective: this method allocates the question in "languages".
+  # Parameters: don't have parameters.
+  # Return: questions.
 
   def languages
 
+    # Create a new definition for questions.
     @questions = Question.where(area: "linguagens, códigos e suas tecnologias").order(:year, :number)
     return @questions
 
   end
 
   # Name: math.
-	# Objective: this method allocates the question in "math".
-	# Parameters: don't have parameters.
-	# Return: questions.
+  # Objective: this method allocates the question in "math".
+  # Parameters: don't have parameters.
+  # Return: questions.
 
   def math
 
+    # Create a new definition for questions.
     @questions = Question.where(area: "matemática e suas tecnologias").order(:year, :number)
     return @questions
 
   end
 
   # Name: recommended.
-	# Objective: this method instantiates allocates the questions by classification in area.
-	# Parameters: don't have parameters.
-	# Return: questions.
+  # Objective: this method instantiates allocates the questions by classification in area.
+  # Parameters: don't have parameters.
+  # Return: questions.
 
   def recommended
 
@@ -240,9 +256,9 @@ class QuestionsController < ApplicationController
   end
 
   # Name: upload_questions.
-	# Objective: this method updates the questions.
-	# Parameters: questions file.
-	# Return: redirects to the questions page.
+  # Objective: this method updates the questions.
+  # Parameters: questions file.
+  # Return: redirects to the questions page.
 
   def upload_questions
 
@@ -263,9 +279,9 @@ class QuestionsController < ApplicationController
   end
 
   # Name: upload_candidates_data.
-	# Objective: this method updates the candidates.
-	# Parameters: don't have parameters.
-	# Return: redirects to the previous page.
+  # Objective: this method updates the candidates.
+  # Parameters: don't have parameters.
+  # Return: redirects to the previous page.
 
   def upload_candidates_data
 
@@ -286,12 +302,13 @@ class QuestionsController < ApplicationController
   end
 
   # Name: next_question.
-	# Objective: this method redirect to the next question.
-	# Parameters: question identifier.
-	# Return: next question.
+  # Objective: this method redirect to the next question.
+  # Parameters: question identifier.
+  # Return: next question.
 
   def next_question
 
+    # Redirect the user to the next question.
     return redirect_to Question.find(params[:id]).next_question
 
   end
@@ -299,14 +316,15 @@ class QuestionsController < ApplicationController
   private
 
   # Name: question_params.
-	# Objective:
-	# Parameters: year, area, number, enunciation, reference, image, right_answer,
+  # Objective:
+  # Parameters: year, area, number, enunciation, reference, image, right_answer,
   #             alternatives attributes identifier, alternatives attributes letter,
   #             alternatives attributes description.
-	# Return: nothing.
+ # Return: nothing.
 
   def question_params
 
+    # Params that are allowed in questions,
     params.require(:question).permit(:year,:area,:number,:enunciation,:reference,:image,:right_answer,
     :alternatives_attributes => [:id, :letter, :description])
 
